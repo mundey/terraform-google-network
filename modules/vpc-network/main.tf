@@ -53,7 +53,15 @@ resource "google_compute_subnetwork" "vpc_subnetwork_public" {
     )
   }
 
-  enable_flow_logs = var.enable_flow_logging
+  dynamic "log_config" {
+    for_each = var.log_config == null ? [] : list(var.log_config)
+
+    content {
+      aggregation_interval = var.log_config.aggregation_interval
+      flow_sampling        = var.log_config.flow_sampling
+      metadata             = var.log_config.metadata
+    }
+  }
 }
 
 resource "google_compute_router_nat" "vpc_nat" {
@@ -69,7 +77,7 @@ resource "google_compute_router_nat" "vpc_nat" {
   source_subnetwork_ip_ranges_to_nat = "LIST_OF_SUBNETWORKS"
 
   subnetwork {
-    name                    = google_compute_subnetwork.vpc_subnetwork_public.self_link
+    name                    = google_compute_subnetwork.vpc_subnetwork_private.self_link
     source_ip_ranges_to_nat = ["ALL_IP_RANGES"]
   }
 }
@@ -101,7 +109,15 @@ resource "google_compute_subnetwork" "vpc_subnetwork_private" {
     )
   }
 
-  enable_flow_logs = var.enable_flow_logging
+  dynamic "log_config" {
+    for_each = var.log_config == null ? [] : list(var.log_config)
+
+    content {
+      aggregation_interval = var.log_config.aggregation_interval
+      flow_sampling        = var.log_config.flow_sampling
+      metadata             = var.log_config.metadata
+    }
+  }
 }
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -120,4 +136,3 @@ module "network_firewall" {
   public_subnetwork  = google_compute_subnetwork.vpc_subnetwork_public.self_link
   private_subnetwork = google_compute_subnetwork.vpc_subnetwork_private.self_link
 }
-

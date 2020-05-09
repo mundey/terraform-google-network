@@ -59,10 +59,19 @@ variable "secondary_cidr_subnetwork_spacing" {
   default     = 0
 }
 
-variable "enable_flow_logging" {
-  description = "Whether to enable VPC Flow Logs being sent to Stackdriver (https://cloud.google.com/vpc/docs/using-flow-logs)"
-  type        = bool
-  default     = true
+variable "log_config" {
+  description = "The logging options for the subnetwork flow logs. Setting this value to `null` will disable them. See https://www.terraform.io/docs/providers/google/r/compute_subnetwork.html for more information and examples."
+  type = object({
+    aggregation_interval = string
+    flow_sampling        = number
+    metadata             = string
+  })
+
+  default = {
+    aggregation_interval = "INTERVAL_10_MIN"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
 }
 
 variable allowed_public_restricted_subnetworks {
